@@ -225,10 +225,14 @@ public class capela extends JFrame implements GLEventListener {
 		gl.glMatrixMode(gl.GL_MODELVIEW);
 		gl.glLoadIdentity();
 
+		gl.glActiveTexture(GL2.GL_TEXTURE0);
+		
 		gl.glTranslatef(0.0f, -0.8f, zoom);
 		gl.glRotatef((float) roda, 0.0f, 1.0f, 0.0f);
 		gl.glRotatef(rollup, 1.0f, 0.0f, 0.0f);
 
+		gl.glBindTexture(GL2.GL_TEXTURE_2D, texture);
+		gl.glEnable(GL2.GL_DEPTH_TEST);
 		gl.glBegin(GL2.GL_QUADS);
 		{ // this bracket is not necessary
 			if (showOuterWalls) {
