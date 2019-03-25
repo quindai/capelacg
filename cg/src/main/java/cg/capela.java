@@ -20,6 +20,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.GLException;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
@@ -27,6 +28,7 @@ import com.jogamp.opengl.glu.GLUquadric;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.gl2.GLUT;
 import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureCoords;
 import com.jogamp.opengl.util.texture.TextureIO;
 
 public class capela extends JFrame implements GLEventListener {
@@ -44,7 +46,8 @@ public class capela extends JFrame implements GLEventListener {
 	private GLUquadric q;
 	private boolean showOuterWalls = true;
 	static int roda = -45;
-	private int texture;
+	private Texture texture;
+	private float textureTop, textureBottom, textureLeft, textureRight;
 	float door_angle = 0.0f, zoom = -40.0f, rollup = 0.0f;
 	FPSAnimator animator;
 
@@ -183,18 +186,35 @@ public class capela extends JFrame implements GLEventListener {
 		gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
 		gl.glClearDepth(1.0f); // Set background depth to farthest
 		gl.glEnable(GL2.GL_DEPTH_TEST); // Enable depth testing for z-culling
-		// gl.glDepthFunc(GL2.GL_LEQUAL); // Set the type of depth-test
-		gl.glShadeModel(GL2.GL_FLAT); // Enable smooth shading
-		gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST); // Nice perspective corrections
+		gl.glDepthFunc(GL2.GL_LEQUAL); // Set the type of depth-test
 		
-		try{
-			File im = new File("images/janela1.jpg");
-			Texture t = TextureIO.newTexture(im,true);
-			texture = t.getTextureObject(gl);
-		}
-		catch(IOException e){
-			e.printStackTrace();
-		}
+		gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST); // Nice perspective corrections
+		gl.glShadeModel(GL2.GL_SMOOTH); // Enable smooth shading
+		
+		try {
+	         // Create a OpenGL Texture object from (URL, mipmap, file suffix)
+	         // Use URL so that can read from JAR and disk file.
+	    	  File im = new File("images/box.jpg");
+	         texture = TextureIO.newTexture(im, // relative to project root 
+	               false);
+
+	         // Use linear filter for texture if image is larger than the original texture
+	         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+	         // Use linear filter for texture if image is smaller than the original texture
+	         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
+
+	         // Texture image flips vertically. Shall use TextureCoords class to retrieve
+	         // the top, bottom, left and right coordinates, instead of using 0.0f and 1.0f.
+	         TextureCoords textureCoords = texture.getImageTexCoords();
+	         textureTop = textureCoords.top();
+	         textureBottom = textureCoords.bottom();
+	         textureLeft = textureCoords.left();
+	         textureRight = textureCoords.right();
+	      } catch (GLException e) {
+	          e.printStackTrace();
+	      } catch (IOException e) {
+	         e.printStackTrace();
+	      }
 	}
 
 	@Override
@@ -223,25 +243,30 @@ public class capela extends JFrame implements GLEventListener {
 		final GL2 gl = drawable.getGL().getGL2();
 		gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT);
 		gl.glMatrixMode(gl.GL_MODELVIEW);
-		gl.glLoadIdentity();
-
-		gl.glActiveTexture(GL2.GL_TEXTURE0);
 		
+		gl.glLoadIdentity();
 		gl.glTranslatef(0.0f, -0.8f, zoom);
 		gl.glRotatef((float) roda, 0.0f, 1.0f, 0.0f);
 		gl.glRotatef(rollup, 1.0f, 0.0f, 0.0f);
 
-		gl.glBindTexture(GL2.GL_TEXTURE_2D, texture);
-		gl.glEnable(GL2.GL_DEPTH_TEST);
+//		texture.enable(gl);
+//		texture.bind(gl);
+		
+		//gl.glEnable(GL2.GL_DEPTH_TEST);
 		gl.glBegin(GL2.GL_QUADS);
 		{ // this bracket is not necessary
 			if (showOuterWalls) {
 				gl.glColor3f((float) 242 / 255, (float) 243 / 255, (float) 244 / 255);
 				// front wall above door
+				gl.glTexCoord2f(textureLeft, textureBottom);
 				gl.glVertex3f(-1.25f, 9.0f, 7.0f); // wall left
+				gl.glTexCoord2f(textureRight, textureBottom);
 				gl.glVertex3f(-7.0f, 9.0f, 7.0f);
+				gl.glTexCoord2f(textureRight, textureTop);
 				gl.glVertex3f(-7.0f, -6.0f, 7.0f);
+				gl.glTexCoord2f(textureLeft, textureTop);
 				gl.glVertex3f(-1.25f, -6.0f, 7.0f); // coords plus 5
+//texture.disable(gl);
 
 				gl.glVertex3f(1.25f, 9.0f, 7.0f); // wall right
 				gl.glVertex3f(7.0f, 9.0f, 7.0f);
@@ -363,8 +388,15 @@ public class capela extends JFrame implements GLEventListener {
 		// desenha a base da fachada
 		drawBase(gl);
 
-		drawChair(gl, 1.5f, -6f, -4f);
-		drawSmallTable(gl, -1.5f, -6f, -4f);
+		drawChair(gl, 1.5f, -6f, -2f);
+		drawChair(gl, 1.5f, -6f, 3f);
+		drawChair(gl, -5.5f, -6f, -2f);
+		drawChair(gl, -5.5f, -6f, 3f);
+		drawSmallTable(gl, 5.5f, -6f, -4f);
+		drawAltar(gl);
+		verticalCylinder(gl, -1.4f, -6f, 7.1f);
+		verticalCylinder(gl, 1.4f, -6f, 7.1f);
+		
 		drawLamp(gl, 0, 0);
 		drawCross(gl);
 		// verticalCylinder(gl);
@@ -485,43 +517,45 @@ public class capela extends JFrame implements GLEventListener {
 		q = glu.gluNewQuadric();
 		gl.glColor3d(.55, .2, .2);
 		gl.glPushMatrix();
-		gl.glTranslated(xpos, y, zpos);
+		gl.glTranslated(xpos, y, zpos+0.5);
 		gl.glRotated(-90, 1, 0, 0);
-		glu.gluCylinder(q, .25, .25, 2, 5, 5);
+		glu.gluCylinder(q, .25, .25, 1, 5, 5);
 		gl.glPopMatrix();
 
 		gl.glPushMatrix();
-		gl.glTranslated(xpos + 2, y, zpos);
+		gl.glTranslated(xpos + 4, y, zpos+0.5);
 		gl.glRotated(-90, 1, 0, 0);
-		glu.gluCylinder(q, .25, .25, 2, 5, 5);
+		//quadric, base (radius), top(radius), height, slices, stacks
+		glu.gluCylinder(q, .25, .25, 1, 5, 5);
 		gl.glPopMatrix();
 
 		gl.glPushMatrix();
-		gl.glTranslated(xpos + 2, y, zpos + 2);
+		gl.glTranslated(xpos + 4, y, zpos + 2);
 		gl.glRotated(-90, 1, 0, 0);
-		glu.gluCylinder(q, .25, .25, 6, 5, 6);
+		glu.gluCylinder(q, .25, .25, 3, 5, 6);
 		gl.glPopMatrix();
 
 		gl.glPushMatrix();
 		gl.glTranslated(xpos, y, zpos + 2);
 		gl.glRotated(-90, 1, 0, 0);
-		glu.gluCylinder(q, .25, .25, 6, 5, 5);
+		glu.gluCylinder(q, .25, .25, 3, 5, 5);
 		gl.glPopMatrix();
 
 		gl.glColor3d(0, 0, 1);
 		gl.glPushMatrix();
-		gl.glTranslated(xpos + 1, y + 2, zpos + 1);
+		gl.glTranslated(xpos + 2, y + 1, zpos + 1);
 		// gl.glRotated(-90,1,0,0);
-		gl.glScalef(4.5f, 0.2f, -2.5f);
+		gl.glScalef(4.5f, 0.2f, -1.5f);
 		// glu.gluPartialDisk(q, .01, 2.5, 10, 10, -90, 180);
 		glut.glutSolidCube(1.0f);
 		gl.glPopMatrix();
 
 		gl.glColor3d(0, .5, .5);
-		gl.glPushMatrix();
-		gl.glTranslated(xpos + 1, y + 5, zpos + 2);
+		gl.glPushMatrix(); 
+		gl.glTranslated(xpos+2, y + 1.8, zpos + 2);
 		// gl.glRotated(-90,1,0,0);
-		glu.gluPartialDisk(q, .01, 1.2, 10, 10, -90, 180);
+		// quadric, inner, outer, slices, loops, start, sweep
+		glu.gluPartialDisk(q, .01, 2, 10, 10, -90, 180);
 		gl.glPopMatrix();
 	}
 
@@ -622,7 +656,7 @@ public class capela extends JFrame implements GLEventListener {
 	private void drawBase(GL2 gl) {
 		// center
 		gl.glPushMatrix();
-		gl.glTranslatef(-0.4f, -6.25f, 0.06f); // move x,y,z
+		gl.glTranslatef(-0.4f, -6.20f, 0.06f); // move x,y,z
 		gl.glTranslatef(0.4f, 0, 0);
 		gl.glColor3f((float) 87 / 255, (float) 33 / 255, (float) 14 / 255);
 		gl.glScalef(0.9f, 0.6f, 13.7f); // largura, altura, profundidade
@@ -630,18 +664,42 @@ public class capela extends JFrame implements GLEventListener {
 		gl.glPopMatrix();
 
 		gl.glPushMatrix(); // base
-		gl.glTranslatef(0.6f, -7.02f, 0.06f); // move x,y,z
+		gl.glTranslatef(0.6f, -7.15f, 0.06f); // move x,y,z
 		gl.glTranslatef(0.9f, 0, 4.95f);
 		gl.glColor3f((float) 59 / 255, (float) 37 / 255, (float) 23 / 255);
 		gl.glScalef(17, 2.0f, 25.0f); // largura, altura, profundidade
 		glut.glutSolidCube(1.0f);
 		gl.glPopMatrix();
 	}
+	
+	private void drawAltar(GL2 gl){
+		gl.glPushMatrix(); // base
+		gl.glTranslatef(0.0f, -4.0f, -5.5f); // move x,y,z
+		//gl.glTranslatef(0.9f, 0, 4.95f);
+		gl.glColor3d(.55, .2, .2);
+		gl.glScalef(5, 0.5f, 2.0f); // largura, altura, profundidade
+		glut.glutSolidCube(1.0f);
+		gl.glPopMatrix();
+		
+		gl.glPushMatrix(); 
+		gl.glTranslatef(0.0f, -5.0f, -5.5f); // move x,y,z
+		//gl.glTranslatef(0.9f, 0, 4.95f);
+		gl.glColor3d(.55, .2, .2);
+		gl.glScalef(1, 1.5f, 0.5f); // largura, altura, profundidade
+		glut.glutSolidCube(1.0f);
+		gl.glPopMatrix();
+	}
 
-	private void verticalCylinder(GL2 gl) {
+	private void verticalCylinder(GL2 gl, float x, float y, float z) {
+		q = glu.gluNewQuadric();
 		gl.glPushMatrix();
-		gl.glTranslatef(0.9f, 0, 8.95f);
-		glut.glutSolidCylinder(5, 5, 2, 2);
+		gl.glTranslated(x, y, z);
+		gl.glRotated(-90, 1, 0, 0);
+		//quadric, base (radius), top(radius), height, slices, stacks
+		//glu.gluCylinder(q, .25, .25, 3, 10, 10);
+		gl.glColor3f((float) 111 / 255, (float) 123 / 255, (float) 137 / 255);
+		// radius, height, slices, stacks
+		glut.glutSolidCylinder(.25, 4.3, 10, 10);
 		gl.glPopMatrix();
 	}
 
