@@ -3,6 +3,7 @@ package cg;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_LIGHT1;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_LIGHT0;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_POSITION;
 
 import java.awt.Dimension;
@@ -56,14 +57,15 @@ public class capela extends JFrame implements GLEventListener {
 	float door_angle = 0.0f, zoom = -40.0f, rollup = 0.0f;
 	FPSAnimator animator;
 	
-	private Texture[] textures = new Texture[3];
-	private String[] textureFileNames = { 
-	         "images/envwall.jpg", "images/cube.bmp", "images/janela1.jpg", "images/envroll.jpg" };
 	
-   private float[] textureTops    = new float[3];
-   private float[] textureBottoms = new float[3];
-   private float[] textureLefts   = new float[3];
-   private float[] textureRights  = new float[3];
+	private String[] textureFileNames = { 
+	         "images/wall3.jpg", "images/window1.jpg", "images/wall1.jpg", "images/envroll.jpg" };
+
+	private Texture[] textures = new Texture[ textureFileNames.length ];
+    private float[] textureTops    = new float[ textureFileNames.length ];
+    private float[] textureBottoms = new float[ textureFileNames.length ];
+    private float[] textureLefts   = new float[ textureFileNames.length ];
+    private float[] textureRights  = new float[ textureFileNames.length ];
 
 	public capela() {
 		super("Capela");
@@ -222,6 +224,9 @@ public class capela extends JFrame implements GLEventListener {
 	            textureBottoms[i] = textureCoords.bottom();
 	            textureLefts[i] = textureCoords.left();
 	            textureRights[i] = textureCoords.right();
+	            
+	            System.out.printf("Textura %d\n Top:%f\n Left:%f\n Right:%f\n Bottom:%f\n",
+	            				i, textureTops[i], textureLefts[i], textureRights[i],textureBottoms[i] );
 			}
 	      } catch (GLException e) {
 	          e.printStackTrace();
@@ -239,10 +244,10 @@ public class capela extends JFrame implements GLEventListener {
 	      // Diffuse light location xyz (in front of the screen).
 	      float[] lightDiffusePosition = { 0.0f, 0.0f, 2.0f, 1.0f };
 	      
-	      gl.glLightfv(GL_LIGHT1, GL_AMBIENT, lightAmbientValue, 0);
-	      gl.glLightfv(GL_LIGHT1, GL_DIFFUSE, lightDiffuseValue, 0);
-	      gl.glLightfv(GL_LIGHT1, GL_POSITION, lightDiffusePosition, 0);
-	      gl.glEnable(GL_LIGHT1);
+	      gl.glLightfv(GL2.GL_LIGHT2, GL_AMBIENT, lightAmbientValue, 0);
+	      gl.glLightfv(GL2.GL_LIGHT2, GL_DIFFUSE, lightDiffuseValue, 0);
+	      gl.glLightfv(GL2.GL_LIGHT2, GL_POSITION, lightDiffusePosition, 0);
+	      gl.glEnable(GL2.GL_LIGHT2);
 	      
 		q = glu.gluNewQuadric();
 		glu.gluQuadricNormals(q, GLU.GLU_SMOOTH);
@@ -285,60 +290,83 @@ public class capela extends JFrame implements GLEventListener {
 		
 //		texture.enable(gl);
 //		texture.bind(gl);
-		
+		textures[0].enable(gl);
+		textures[0].bind(gl);
 		//gl.glEnable(GL2.GL_DEPTH_TEST);
 		gl.glBegin(GL2.GL_QUADS);
 		{ // this bracket is not necessary
 			if (showOuterWalls) {
+				gl.glNormal3f(0.0f, 0.0f, 1.0f);
 				gl.glColor3f((float) 242 / 255, (float) 243 / 255, (float) 244 / 255);
 				// front wall above door
 				//gl.glTexCoord2f(textureLeft, textureBottom);
+				gl.glTexCoord2f(textureLefts[0], textureBottoms[0]);
 				gl.glVertex3f(-1.25f, 9.0f, 7.0f); // wall left
 				//gl.glTexCoord2f(textureRight, textureBottom);
+				gl.glTexCoord2f(textureRights[0], textureBottoms[0]);
 				gl.glVertex3f(-7.0f, 9.0f, 7.0f);
 				//gl.glTexCoord2f(textureRight, textureTop);
+				gl.glTexCoord2f(textureRights[0], textureTops[0]);
 				gl.glVertex3f(-7.0f, -6.0f, 7.0f);
 				//gl.glTexCoord2f(textureLeft, textureTop);
+				gl.glTexCoord2f(textureLefts[0], textureTops[0]);
 				gl.glVertex3f(-1.25f, -6.0f, 7.0f); // coords plus 5
 //texture.disable(gl);
 
+				gl.glTexCoord2f(textureLefts[0], textureBottoms[0]);
 				gl.glVertex3f(1.25f, 9.0f, 7.0f); // wall right
+				gl.glTexCoord2f(textureRights[0], textureBottoms[0]);
 				gl.glVertex3f(7.0f, 9.0f, 7.0f);
+				gl.glTexCoord2f(textureRights[0], textureTops[0]);
 				gl.glVertex3f(7.0f, -6.0f, 7.0f);
+				gl.glTexCoord2f(textureLefts[0], textureTops[0]);
 				gl.glVertex3f(1.25f, -6.0f, 7.0f);
 
+				gl.glTexCoord2f(textureLefts[0], textureBottoms[0]);
 				gl.glVertex3f(-5.45f, 9.0f, 7.0f); // wall up
+				gl.glTexCoord2f(textureRights[0], textureBottoms[0]);
 				gl.glVertex3f(5.45f, 9.0f, 7.0f);
+				gl.glTexCoord2f(textureRights[0], textureTops[0]);
 				gl.glVertex3f(5.45f, -1.69f, 7.0f);
+				gl.glTexCoord2f(textureLefts[0], textureTops[0]);
 				gl.glVertex3f(-5.45f, -1.69f, 7.0f);
 
+
+				// face esquerda
 				
 				// Almond RGB Color Code: #EFDECD
 				gl.glColor3f((float) 239 / 255, (float) 222 / 255, (float) 205 / 255);
-				// face esquerda
 				gl.glNormal3f(-1.0f, 0.0f, 0.0f);
+				gl.glTexCoord2f(textureLefts[0], textureBottoms[0]);
 				gl.glVertex3f(-7.0f, 9.0f, 7.0f);
+				gl.glTexCoord2f(textureRights[0], textureBottoms[0]);
 				gl.glVertex3f(-7.0f, 9.0f, -7.0f);
+				gl.glTexCoord2f(textureRights[0], textureTops[0]);
 				gl.glVertex3f(-7.0f, -6.0f, -7.0f);
+				gl.glTexCoord2f(textureLefts[0], textureTops[0]);
 				gl.glVertex3f(-7.0f, -6.0f, 7.0f);
-
+				textures[0].disable(gl);
+				
 				// face direita
+				gl.glNormal3f(1.0f, 0.0f, 0.0f);
 				gl.glVertex3f(7.0f, 9.0f, -7.0f);
 				gl.glVertex3f(7.0f, 9.0f, 7.0f);
 				gl.glVertex3f(7.0f, -6.0f, 7.0f);
 				gl.glVertex3f(7.0f, -6.0f, -7.0f);
 
-				// Alice Blue RGB Color Code: #F0F8FF
-				gl.glColor3f((float) 240 / 255, (float) 248 / 255, (float) 255 / 255);
 				// face fundo
+				// Alice Blue RGB Color Code: #F0F8FF
+				gl.glNormal3f(0.0f, -1.0f, 0.0f);
+				gl.glColor3f((float) 240 / 255, (float) 248 / 255, (float) 255 / 255);
 				gl.glVertex3f(7.0f, -6.0f, 7.0f);
 				gl.glVertex3f(-7.0f, -6.0f, 7.0f);
 				gl.glVertex3f(-7.0f, -6.0f, -7.0f);
 				gl.glVertex3f(7.0f, -6.0f, -7.0f);
 
-				// Antique Brass RGB Color Code: #CD9575
-				gl.glColor3f((float) 205 / 255, (float) 149 / 255, (float) 117 / 255);
 				// back
+				// Antique Brass RGB Color Code: #CD9575
+				gl.glNormal3f(0.0f, 0.0f, -1.0f);
+				gl.glColor3f((float) 205 / 255, (float) 149 / 255, (float) 117 / 255);
 				gl.glVertex3f(7.0f, 9.0f, -7.0f);
 				gl.glVertex3f(-7.0f, 9.0f, -7.0f);
 				gl.glVertex3f(-7.0f, -6.0f, -7.0f);
@@ -369,38 +397,45 @@ public class capela extends JFrame implements GLEventListener {
 			gl.glVertex3f(7.0f, 4.0f, -7.0f);
 			gl.glVertex3f(7.0f, 4.0f, 2.0f);
 			gl.glVertex3f(10.0f, 2.0f, 5.0f);
-
-			// PEQUENAS JANELAS DE FORA
-			gl.glColor3f((float) 111 / 255, (float) 123 / 255, (float) 137 / 255);
-			gl.glVertex3f(7.2f, 7.0f, 1.0f); // right
-			gl.glVertex3f(7.2f, 7.0f, 2.3f);
-			gl.glVertex3f(7.2f, 5.0f, 2.3f);
-			gl.glVertex3f(7.2f, 5.0f, 1.0f);
-
-			gl.glVertex3f(-7.2f, 7.0f, 1.0f); // left
-			gl.glVertex3f(-7.2f, 7.0f, 2.3f);
-			gl.glVertex3f(-7.2f, 5.0f, 2.3f);
-			gl.glVertex3f(-7.2f, 5.0f, 1.0f);
-			
-			// front small house window
-			gl.glVertex3f(8.2f, 1, 5.05f);
-			gl.glVertex3f(7.2f, 1, 5.05f);
-			gl.glVertex3f(7.2f, -1.0f, 5.05f);
-			gl.glVertex3f(8.2f, -1.0f, 5.05f);
-			
-			//right windows small house up
-			drawSmallHouseWindows(gl, 1.0f, 3.0f);
-			drawSmallHouseWindows(gl, 1.0f, -1.0f);
-			drawSmallHouseWindows(gl, 1.0f, -5.0f);
-			
-			//right windows small house down
-			drawSmallHouseWindows(gl, -3.0f, 3.0f);
-			drawSmallHouseWindows(gl, -3.0f, -1.0f);
-			drawSmallHouseWindows(gl, -3.0f, -5.0f);
-			
 		}
 		gl.glEnd();
 
+		textures[1].enable(gl);
+		textures[1].bind(gl);
+		gl.glBegin(GL2.GL_QUADS);
+		gl.glColor3f((float) 111 / 255, (float) 123 / 255, (float) 137 / 255);
+		// PEQUENAS JANELAS DE FORA
+		//right windows small house up
+		drawSmallWindowsR(gl, 10.1f, 1.0f, 3.0f);
+		drawSmallWindowsR(gl, 10.1f, 1.0f, -1.0f);
+		drawSmallWindowsR(gl, 10.1f, 1.0f, -5.0f);
+		
+		//right windows small house down
+		drawSmallWindowsR(gl, 10.1f, -3.0f, 3.0f);
+		drawSmallWindowsR(gl, 10.1f, -3.0f, -1.0f);
+		drawSmallWindowsR(gl, 10.1f, -3.0f, -5.0f);
+		
+		//big house
+		drawSmallWindowsR(gl, 7.2f, 7.0f, 2.3f);
+		/*gl.glVertex3f(7.2f, 7.0f, 1.0f); // right
+		gl.glVertex3f(7.2f, 7.0f, 2.3f);
+		gl.glVertex3f(7.2f, 5.0f, 2.3f);
+		gl.glVertex3f(7.2f, 5.0f, 1.0f);*/
+
+		gl.glVertex3f(-7.2f, 7.0f, 1.0f); // left
+		gl.glVertex3f(-7.2f, 7.0f, 2.3f);
+		gl.glVertex3f(-7.2f, 5.0f, 2.3f);
+		gl.glVertex3f(-7.2f, 5.0f, 1.0f);
+		
+		// front small house window
+		gl.glVertex3f(8.2f, 1, 5.05f);
+		gl.glVertex3f(7.2f, 1, 5.05f);
+		gl.glVertex3f(7.2f, -1.0f, 5.05f);
+		gl.glVertex3f(8.2f, -1.0f, 5.05f);
+					
+		gl.glEnd();
+		textures[1].disable(gl);
+		
 		// TELHADO
 		drawRoof(gl);
 		
@@ -438,9 +473,20 @@ public class capela extends JFrame implements GLEventListener {
 		gl.glFlush();
 	}
 
-	public void drawSmallHouseWindows(GL2 gl, float y, float z) {
-		textures[1].enable(gl);
-		textures[1].bind(gl);
+	public void drawSmallWindowsR(GL2 gl, float x, float y, float z) {
+		gl.glNormal3f(1.0f, 0.0f, 0.0f);
+		gl.glTexCoord2f(textureRights[1], textureBottoms[1]);
+		gl.glVertex3f(x, y, z);
+		gl.glTexCoord2f(textureRights[1], textureTops[1]);
+		gl.glVertex3f(x, y, z-1.3f);
+		gl.glTexCoord2f(textureLefts[1], textureTops[1]);
+		gl.glVertex3f(x, y-2, z-1.3f);
+		gl.glTexCoord2f(textureLefts[1], textureBottoms[1]);
+		gl.glVertex3f(x, y-2, z);
+	}
+	
+	public void drawSmallHouseWindowsL(GL2 gl, float y, float z) {
+		gl.glNormal3f(-1.0f, 0.0f, 0.0f);
 		gl.glTexCoord2f(textureLefts[1], textureBottoms[1]);
 		gl.glVertex3f(10.1f, y, z);
 		gl.glTexCoord2f(textureRights[1], textureBottoms[1]);
@@ -449,7 +495,6 @@ public class capela extends JFrame implements GLEventListener {
 		gl.glVertex3f(10.1f, y-2, z-1.3f);
 		gl.glTexCoord2f(textureLefts[1], textureTops[1]);
 		gl.glVertex3f(10.1f, y-2, z);
-		textures[1].disable(gl);
 	}
 	
 	public void drawCross(GL2 gl) {
@@ -741,8 +786,8 @@ public class capela extends JFrame implements GLEventListener {
 	}
 
 	private void verticalCylinder(GL2 gl, float x, float y, float z) {
-		textures[1].enable(gl);
-		textures[1].bind(gl);
+		textures[2].enable(gl);
+		textures[2].bind(gl);
 			gl.glPushMatrix();
 			gl.glTranslated(x, y, z);
 			gl.glRotated(-90, 1, 0, 0);
@@ -750,7 +795,7 @@ public class capela extends JFrame implements GLEventListener {
 			//quadric, base (radius), top(radius), height, slices, stacks
 			glu.gluCylinder(q, .25, .25, 5.3, 10, 10);
 			gl.glPopMatrix();
-		textures[1].disable(gl);
+		textures[2].disable(gl);
 	}
 
 	@Override
