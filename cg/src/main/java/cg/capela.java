@@ -59,7 +59,10 @@ public class capela extends JFrame implements GLEventListener {
 	
 	
 	private String[] textureFileNames = { 
-	         "images/wall3.jpg", "images/window1.jpg", "images/wall1.jpg", "images/envroll.jpg" };
+	         "images/wall3.jpg", 
+	         "images/window1.jpg", 
+	         "images/wall1.jpg", 
+	         "images/jesus.jpeg" };
 
 	private Texture[] textures = new Texture[ textureFileNames.length ];
     private float[] textureTops    = new float[ textureFileNames.length ];
@@ -202,6 +205,8 @@ public class capela extends JFrame implements GLEventListener {
 		gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
 		gl.glClearDepth(1.0f); // Set background depth to farthest
 		gl.glEnable(GL2.GL_DEPTH_TEST); // Enable depth testing for z-culling
+		gl.glEnable(GL2.GL_BLEND);
+		gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
 		gl.glDepthFunc(GL2.GL_LEQUAL); // Set the type of depth-test
 		
 		gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST); // Nice perspective corrections
@@ -244,10 +249,10 @@ public class capela extends JFrame implements GLEventListener {
 	      // Diffuse light location xyz (in front of the screen).
 	      float[] lightDiffusePosition = { 0.0f, 0.0f, 2.0f, 1.0f };
 	      
-	      gl.glLightfv(GL2.GL_LIGHT2, GL_AMBIENT, lightAmbientValue, 0);
-	      gl.glLightfv(GL2.GL_LIGHT2, GL_DIFFUSE, lightDiffuseValue, 0);
-	      gl.glLightfv(GL2.GL_LIGHT2, GL_POSITION, lightDiffusePosition, 0);
-	      gl.glEnable(GL2.GL_LIGHT2);
+	      //gl.glLightfv(GL2.GL_LIGHT2, GL_AMBIENT, lightAmbientValue, 0);
+	      gl.glLightfv(GL2.GL_LIGHT1, GL_DIFFUSE, lightDiffuseValue, 0);
+	      gl.glLightfv(GL2.GL_LIGHT1, GL_POSITION, lightDiffusePosition, 0);
+	      gl.glEnable(GL2.GL_LIGHT1);
 	      
 		q = glu.gluNewQuadric();
 		glu.gluQuadricNormals(q, GLU.GLU_SMOOTH);
@@ -374,17 +379,20 @@ public class capela extends JFrame implements GLEventListener {
 
 				// draw small house on the right
 				// Anti-Flash White RGB Color Code: #F2F3F4
+				gl.glNormal3f(0.0f, 0.0f, 1.0f);
 				gl.glColor3f((float) 242 / 255, (float) 243 / 255, (float) 244 / 255);
 				gl.glVertex3f(7.0f, 2.0f, 5.0f); // wall front
 				gl.glVertex3f(10.0f, 2.0f, 5.0f);
 				gl.glVertex3f(10.0f, -6.0f, 5.0f);
 				gl.glVertex3f(7.0f, -6.0f, 5.0f);
 
+				gl.glNormal3f(1.0f, 0.0f, 0.0f);
 				gl.glVertex3f(10.0f, 2.0f, -7.0f); // wall right
 				gl.glVertex3f(10.0f, 2.0f, 5.0f);
 				gl.glVertex3f(10.0f, -6.0f, 5.0f);
 				gl.glVertex3f(10.0f, -6.0f, -7.0f);
 
+				gl.glNormal3f(0.0f, 0.0f, -1.0f);
 				gl.glVertex3f(7.0f, 4.0f, -7.0f); // wall back
 				gl.glVertex3f(10.0f, 2.0f, -7.0f);
 				gl.glVertex3f(10.0f, -6.0f, -7.0f);
@@ -422,16 +430,19 @@ public class capela extends JFrame implements GLEventListener {
 		gl.glVertex3f(7.2f, 5.0f, 2.3f);
 		gl.glVertex3f(7.2f, 5.0f, 1.0f);*/
 
-		gl.glVertex3f(-7.2f, 7.0f, 1.0f); // left
+		drawSmallWindowsL(gl, -7.2f, 7.0f, 2.3f);
+		/*gl.glVertex3f(-7.2f, 7.0f, 1.0f); // left
 		gl.glVertex3f(-7.2f, 7.0f, 2.3f);
 		gl.glVertex3f(-7.2f, 5.0f, 2.3f);
 		gl.glVertex3f(-7.2f, 5.0f, 1.0f);
+		*/
 		
 		// front small house window
-		gl.glVertex3f(8.2f, 1, 5.05f);
+		drawSmallWindowsF(gl, 8.2f, 1f, 5.05f);
+		/*gl.glVertex3f(8.2f, 1, 5.05f);
 		gl.glVertex3f(7.2f, 1, 5.05f);
 		gl.glVertex3f(7.2f, -1.0f, 5.05f);
-		gl.glVertex3f(8.2f, -1.0f, 5.05f);
+		gl.glVertex3f(8.2f, -1.0f, 5.05f);*/
 					
 		gl.glEnd();
 		textures[1].disable(gl);
@@ -485,16 +496,28 @@ public class capela extends JFrame implements GLEventListener {
 		gl.glVertex3f(x, y-2, z);
 	}
 	
-	public void drawSmallHouseWindowsL(GL2 gl, float y, float z) {
+	public void drawSmallWindowsL(GL2 gl, float x, float y, float z) {
 		gl.glNormal3f(-1.0f, 0.0f, 0.0f);
 		gl.glTexCoord2f(textureLefts[1], textureBottoms[1]);
-		gl.glVertex3f(10.1f, y, z);
+		gl.glVertex3f(x, y, z);
 		gl.glTexCoord2f(textureRights[1], textureBottoms[1]);
-		gl.glVertex3f(10.1f, y, z-1.3f);
+		gl.glVertex3f(x, y, z-1.3f);
 		gl.glTexCoord2f(textureRights[1], textureTops[1]);
-		gl.glVertex3f(10.1f, y-2, z-1.3f);
+		gl.glVertex3f(x, y-2, z-1.3f);
 		gl.glTexCoord2f(textureLefts[1], textureTops[1]);
-		gl.glVertex3f(10.1f, y-2, z);
+		gl.glVertex3f(x, y-2, z);
+	}
+	
+	public void drawSmallWindowsF(GL2 gl, float x, float y, float z) {
+		gl.glNormal3f(0.0f, 0.0f, 1.0f);
+		gl.glTexCoord2f(textureLefts[1], textureBottoms[1]);
+		gl.glVertex3f(x, y, z);
+		gl.glTexCoord2f(textureRights[1], textureBottoms[1]);
+		gl.glVertex3f(x-1, y, z);
+		gl.glTexCoord2f(textureRights[1], textureTops[1]);
+		gl.glVertex3f(x-1, y-2, z);
+		gl.glTexCoord2f(textureLefts[1], textureTops[1]);
+		gl.glVertex3f(x, y-2, z);
 	}
 	
 	public void drawCross(GL2 gl) {
@@ -518,12 +541,16 @@ public class capela extends JFrame implements GLEventListener {
 		gl.glTranslated(x, -z, 9);
 		gl.glColor3f(.7f, .7f, .7f);
 		glu.gluCylinder(q, .1, .1, 2, 10, 10);
+		gl.glColor4ub((byte)222, (byte)111, (byte)100, (byte)25);
 		glu.gluSphere(q, .8, 10, 10);
 		gl.glTranslated(0, 0, -1);
 		gl.glEnable(GL2.GL_BLEND);
 		gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
 		gl.glColor4f(.7f, .1f, .1f, .9f); // dimmer yellow, translucent
+		textures[3].enable(gl);
+		textures[3].bind(gl);
 		glu.gluCylinder(q, 1, 1, 2, 10, 10);
+		textures[3].disable(gl);
 		gl.glDisable(GL2.GL_BLEND);
 		gl.glPopMatrix();
 	}
