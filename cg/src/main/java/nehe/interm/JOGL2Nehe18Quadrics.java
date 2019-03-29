@@ -1,21 +1,10 @@
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import javax.swing.*;
-import javax.imageio.ImageIO;
-import javax.media.opengl.GL2;
-import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLEventListener;
-import javax.media.opengl.GLException;
-import javax.media.opengl.GLProfile;
-import javax.media.opengl.awt.GLCanvas;
-import javax.media.opengl.glu.GLU;
-import javax.media.opengl.glu.GLUquadric;
-import com.jogamp.opengl.util.FPSAnimator;
-import com.jogamp.opengl.util.texture.Texture;
-import com.jogamp.opengl.util.texture.TextureCoords;
-import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
+package nehe.interm;
+
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_LIGHT1;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_LIGHTING;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_POSITION;
 import static java.awt.event.KeyEvent.VK_DOWN;
 import static java.awt.event.KeyEvent.VK_F;
 import static java.awt.event.KeyEvent.VK_L;
@@ -25,13 +14,39 @@ import static java.awt.event.KeyEvent.VK_PAGE_UP;
 import static java.awt.event.KeyEvent.VK_RIGHT;
 import static java.awt.event.KeyEvent.VK_SPACE;
 import static java.awt.event.KeyEvent.VK_UP;
-import static javax.media.opengl.GL.*;  // GL constants
+/*import static javax.media.opengl.GL.*;  // GL constants
 import static javax.media.opengl.GL2.*; // GL2 constants
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_LIGHT1;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_LIGHTING;
-import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_POSITION;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_POSITION;*/
+
+import java.awt.Dimension;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+import javax.swing.JFrame;
+
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.GLException;
+import com.jogamp.opengl.GLProfile;
+import com.jogamp.opengl.awt.GLCanvas;
+import com.jogamp.opengl.glu.GLU;
+import com.jogamp.opengl.glu.GLUquadric;
+import com.jogamp.opengl.util.FPSAnimator;
+import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureCoords;
+import com.jogamp.opengl.util.texture.TextureIO;
+import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
 
 /**
  * NeHe Lesson #18: Quadrics
@@ -135,38 +150,39 @@ public class JOGL2Nehe18Quadrics implements GLEventListener, KeyListener {
       glu = new GLU();                         // get GL Utilities
       gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // set background (clear) color
       gl.glClearDepth(1.0f);      // set clear depth value to farthest
-      gl.glEnable(GL_DEPTH_TEST); // enables depth testing
-      gl.glDepthFunc(GL_LEQUAL);  // the type of depth test to do
-      gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // best perspective correction
-      gl.glShadeModel(GL_SMOOTH); // blends colors nicely, and smoothes out lighting
+      gl.glEnable(GL2.GL_DEPTH_TEST); // enables depth testing
+      gl.glDepthFunc(GL2.GL_LEQUAL);  // the type of depth test to do
+      gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST); // best perspective correction
+      gl.glShadeModel(GL2.GL_SMOOTH); // blends colors nicely, and smoothes out lighting
 
       // Load the texture image
       try {
          // Use URL so that can read from JAR and disk file.
-         BufferedImage image = ImageIO.read(this.getClass().getResource(textureFileName));
+         //BufferedImage image = ImageIO.read(this.getClass().getResource(textureFileName));
 
+         File image = new File(textureFileName);
          // Create a OpenGL Texture object
-         textures[0] = AWTTextureIO.newTexture(GLProfile.getDefault(), image, false); 
+         textures[0] = TextureIO.newTexture( image, false); 
          // Nearest filter is least compute-intensive
          // Use nearer filter if image is larger than the original texture
-         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_NEAREST);
          // Use nearer filter if image is smaller than the original texture
-         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_NEAREST);
          // gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, 3, textures[0].getWidth(), textures[0]
          //     .getHeight(), 0, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, textures[0].getPixels());
 
-         textures[1] = AWTTextureIO.newTexture(GLProfile.getDefault(), image, false);
+         textures[1] = TextureIO.newTexture(image, false);
          // Linear filter is more compute-intensive
          // Use linear filter if image is larger than the original texture
-         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
          // Use linear filter if image is smaller than the original texture
-         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
 
-         textures[2] = AWTTextureIO.newTexture(GLProfile.getDefault(), image, true); // mipmap is true
+         textures[2] = TextureIO.newTexture(image, true); // mipmap is true
          // Use mipmap filter is the image is smaller than the texture
-         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-               GL_LINEAR_MIPMAP_NEAREST);
+         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER,
+        		 GL2.GL_LINEAR_MIPMAP_NEAREST);
 
          // Get the top and bottom coordinates of the textures. Image flips vertically.
          TextureCoords textureCoords;
@@ -217,12 +233,12 @@ public class JOGL2Nehe18Quadrics implements GLEventListener, KeyListener {
       gl.glViewport(0, 0, width, height);
 
       // Setup perspective projection, with aspect ratio matches viewport
-      gl.glMatrixMode(GL_PROJECTION);  // choose projection matrix
+      gl.glMatrixMode(GL2.GL_PROJECTION);  // choose projection matrix
       gl.glLoadIdentity();             // reset projection matrix
       glu.gluPerspective(45.0, aspect, 0.1, 100.0); // fovy, aspect, zNear, zFar
 
       // Enable the model-view transform
-      gl.glMatrixMode(GL_MODELVIEW);
+      gl.glMatrixMode(GL2.GL_MODELVIEW);
       gl.glLoadIdentity(); // reset
    }
 
@@ -232,7 +248,7 @@ public class JOGL2Nehe18Quadrics implements GLEventListener, KeyListener {
    @Override
    public void display(GLAutoDrawable drawable) {
       GL2 gl = drawable.getGL().getGL2();  // get the OpenGL 2 graphics context
-      gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear color and depth buffers
+      gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT); // clear color and depth buffers
       gl.glLoadIdentity();  // reset the model-view matrix
 
       // Check whether light shall be turn on (toggle via the 'L' key)
@@ -339,7 +355,7 @@ public class JOGL2Nehe18Quadrics implements GLEventListener, KeyListener {
    private void drawCube(GL2 gl) {
       // ------ Render a Cube with texture ------
 
-      gl.glBegin(GL_QUADS); // of the color cube
+      gl.glBegin(GL2.GL_QUADS); // of the color cube
       // Define groups of 4 vertices in CCW order
 
       // Front Face

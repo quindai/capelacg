@@ -1,28 +1,36 @@
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.Random;
-import javax.swing.*;
-import javax.imageio.ImageIO;
-import javax.media.opengl.GL2;
-import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLEventListener;
-import javax.media.opengl.GLException;
-import javax.media.opengl.GLProfile;
-import javax.media.opengl.awt.GLCanvas;
-import javax.media.opengl.glu.GLU;
-import com.jogamp.opengl.util.FPSAnimator;
-import com.jogamp.opengl.util.texture.Texture;
-import com.jogamp.opengl.util.texture.TextureCoords;
-import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
+package nehe.interm;
+
 import static java.awt.event.KeyEvent.VK_DOWN;
 import static java.awt.event.KeyEvent.VK_PAGE_DOWN;
 import static java.awt.event.KeyEvent.VK_PAGE_UP;
 import static java.awt.event.KeyEvent.VK_T;
 import static java.awt.event.KeyEvent.VK_UP;
-import static javax.media.opengl.GL.*;  // GL constants
-import static javax.media.opengl.GL2.*; // GL2 constants
+
+import java.awt.Dimension;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Random;
+
+import javax.imageio.ImageIO;
+import javax.swing.JFrame;
+
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.GLException;
+import com.jogamp.opengl.GLProfile;
+import com.jogamp.opengl.awt.GLCanvas;
+import com.jogamp.opengl.glu.GLU;
+import com.jogamp.opengl.util.FPSAnimator;
+import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureCoords;
+import com.jogamp.opengl.util.texture.TextureIO;
+
 
 /**
  * NeHe Lesson #9: Moving Bitmaps In 3D Space
@@ -114,20 +122,22 @@ public class JOGL2Nehe09Stars implements GLEventListener, KeyListener {
       // Do not enable depth test
 //      gl.glEnable(GL_DEPTH_TEST); // enables depth testing
 //      gl.glDepthFunc(GL_LEQUAL);  // the type of depth test to do
-      gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // best perspective correction
-      gl.glShadeModel(GL_SMOOTH); // blends colors nicely, and smoothes out lighting
+      gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST); // best perspective correction
+      gl.glShadeModel(GL2.GL_SMOOTH); // blends colors nicely, and smoothes out lighting
 
       // Load the texture image
       try {
          // Use URL so that can read from JAR and disk file.
-         BufferedImage image = ImageIO.read(this.getClass().getResource(textureFileName));
+        // BufferedImage image = ImageIO.read(this.getClass().getResource(textureFileName));
 
+         File image = new File(textureFileName);
+         
          // Create a OpenGL Texture object
-         texture = AWTTextureIO.newTexture(GLProfile.getDefault(), image, false); 
+         texture = TextureIO.newTexture( image, false); 
          // Use linear filter if image is larger than the original texture
-         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
          // Use linear filter if image is smaller than the original texture
-         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
 
       } catch (GLException e) {
          e.printStackTrace();
@@ -149,8 +159,8 @@ public class JOGL2Nehe09Stars implements GLEventListener, KeyListener {
       // gl.glEnable(GL_TEXTURE_2D);
       
       // Enable blending
-      gl.glEnable(GL_BLEND);
-      gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+      gl.glEnable(GL2.GL_BLEND);
+      gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE);
 
       // Allocate the stars
       for (int i = 0; i < stars.length; i++) {
@@ -175,12 +185,12 @@ public class JOGL2Nehe09Stars implements GLEventListener, KeyListener {
       gl.glViewport(0, 0, width, height);
 
       // Setup perspective projection, with aspect ratio matches viewport
-      gl.glMatrixMode(GL_PROJECTION);  // choose projection matrix
+      gl.glMatrixMode(GL2.GL_PROJECTION);  // choose projection matrix
       gl.glLoadIdentity();             // reset projection matrix
       glu.gluPerspective(45.0, aspect, 0.1, 100.0); // fovy, aspect, zNear, zFar
 
       // Enable the model-view transform
-      gl.glMatrixMode(GL_MODELVIEW);
+      gl.glMatrixMode(GL2.GL_MODELVIEW);
       gl.glLoadIdentity(); // reset
    }
 
@@ -190,7 +200,7 @@ public class JOGL2Nehe09Stars implements GLEventListener, KeyListener {
    @Override
    public void display(GLAutoDrawable drawable) {
       GL2 gl = drawable.getGL().getGL2();  // get the OpenGL 2 graphics context
-      gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear color and depth buffers
+      gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT); // clear color and depth buffers
 
       for (int i = 0; i < stars.length; i++) {
          // Reset the view (x, y, z axes back to normal)
@@ -224,7 +234,7 @@ public class JOGL2Nehe09Stars implements GLEventListener, KeyListener {
          gl.glRotatef(starSpinAngle, 0.0f, 0.0f, 1.0f);
          // Set the star's color using bytes (why bytes? not float or int?)
          gl.glColor4ub(stars[i].r, stars[i].g, stars[i].b, (byte)255);
-         gl.glBegin(GL_QUADS);
+         gl.glBegin(GL2.GL_QUADS);
          // draw a square on x-y plane
          gl.glTexCoord2f(textureCoordLeft, textureCoordBottom);
          gl.glVertex3f(-1.0f, -1.0f, 0.0f);
@@ -241,7 +251,7 @@ public class JOGL2Nehe09Stars implements GLEventListener, KeyListener {
             // Assign a color using bytes
             gl.glColor4ub(stars[(numStars - i) - 1].r, stars[(numStars - i) - 1].g,
                   stars[(numStars - i) - 1].b, (byte)255);
-            gl.glBegin(GL_QUADS);
+            gl.glBegin(GL2.GL_QUADS);
             // draw a square on x-y plane
             gl.glTexCoord2f(textureCoordLeft, textureCoordBottom);
             gl.glVertex3f(-1.0f, -1.0f, 0.0f);
