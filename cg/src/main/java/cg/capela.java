@@ -59,12 +59,13 @@ public class capela extends JFrame implements GLEventListener {
 	
 	
 	private String[] textureFileNames = { 
-	         "images/wall3.jpg", 
+	         "images/wall4.jpg", 
 	         "images/window1.jpg", 
 	         "images/wall1.jpg", 
 	         "images/jesus.jpeg",
 	         "images/inwallback.jpg",
-	         "images/roof.jpg"};
+	         "images/roof1.jpg",
+	         "images/wood.jpg"};
 
 	private Texture[] textures = new Texture[ textureFileNames.length ];
     private float[] textureTops    = new float[ textureFileNames.length ];
@@ -406,15 +407,43 @@ public class capela extends JFrame implements GLEventListener {
 				gl.glVertex3f(7.0f, -6.0f, -7.0f);
 
 			}
-			// correcting roof small house
-			gl.glColor3f((float) 215 / 255, (float) 180 / 255, (float) 145 / 255);
-			gl.glVertex3f(10.0f, 2.0f, -7.0f); // wall right
-			gl.glVertex3f(7.0f, 4.0f, -7.0f);
-			gl.glVertex3f(7.0f, 4.0f, 2.0f);
-			gl.glVertex3f(10.0f, 2.0f, 5.0f);
 		}
 		gl.glEnd();
 
+		// correcting roof small house
+		textures[5].enable(gl);
+		textures[5].bind(gl);
+		gl.glBegin(GL2.GL_QUADS);
+			gl.glColor3f((float) 215 / 255, (float) 180 / 255, (float) 145 / 255);
+			gl.glNormal3f(1.0f, 0.5f, 0.0f);
+			gl.glTexCoord2f(textureRights[5]/2, textureBottoms[5]);
+			gl.glVertex3f(10.0f, 2.0f, -7.0f); // wall right
+			gl.glTexCoord2f(textureRights[5], textureTops[5]);
+			gl.glVertex3f(7.0f, 4.0f, -7.0f);
+			gl.glTexCoord2f(textureLefts[5], textureTops[5]);
+			gl.glVertex3f(7.0f, 4.0f, 2.0f);
+			gl.glTexCoord2f(textureLefts[5], textureBottoms[5]);
+			gl.glVertex3f(10.0f, 2.0f, 5.0f);
+		gl.glEnd();
+		textures[5].disable(gl);
+		
+		// monumental wall inside back
+		textures[4].enable(gl);
+		textures[4].bind(gl);
+		gl.glBegin(GL2.GL_QUADS);
+		gl.glColor3f((float) 205 / 255, (float) 149 / 255, (float) 117 / 255);
+			gl.glNormal3f(0.0f, 0.0f, 1.0f);
+			gl.glTexCoord2f(textureLefts[4], textureBottoms[4]);
+			gl.glVertex3f(-7.0f, -6.0f, -6.7f); // wall back
+			gl.glTexCoord2f(textureRights[4], textureBottoms[4]);
+			gl.glVertex3f(7.0f, -6.0f, -6.7f);
+			gl.glTexCoord2f(textureRights[4], textureTops[4]);
+			gl.glVertex3f(7.0f, 9.0f, -6.7f);
+			gl.glTexCoord2f(textureLefts[4], textureTops[4]);
+			gl.glVertex3f(-7.0f, 9.0f, -6.7f);
+		gl.glEnd();
+		textures[4].disable(gl);
+		
 		textures[1].enable(gl);
 		textures[1].bind(gl);
 		gl.glBegin(GL2.GL_QUADS);
@@ -660,6 +689,8 @@ public class capela extends JFrame implements GLEventListener {
 
 	public void drawChair(GL2 gl, float xpos, float y, float zpos) {
 		
+		textures[6].enable(gl);
+		textures[6].bind(gl);
 		gl.glColor3d(.55, .2, .2);
 		gl.glPushMatrix();
 		gl.glTranslated(xpos, y, zpos+0.5);
@@ -703,6 +734,7 @@ public class capela extends JFrame implements GLEventListener {
 		// quadric, inner, outer, slices, loops, start, sweep
 		glu.gluPartialDisk(q, .01, 2, 10, 10, -90, 180);
 		gl.glPopMatrix();
+		textures[6].disable(gl);
 	}
 
 	public void drawTable(GL2 gl, double xpos, double zpos) {
@@ -791,12 +823,20 @@ public class capela extends JFrame implements GLEventListener {
 		gl.glRotatef((float) roda, 0.0f, 1.0f, 0.0f);
 		gl.glRotatef(rollup, 1.0f, 0.0f, 0.0f);
 
+		gl.glNormal3f(0.0f, 0.5f, 1.0f);
 		gl.glColor3f((float) 215 / 255, (float) 180 / 255, (float) 145 / 255);
+		
+		textures[5].enable(gl);
+		textures[5].bind(gl);
 		gl.glBegin(GL2.GL_TRIANGLES);
+		gl.glTexCoord2f(textureRights[5]/2, textureTops[5]);
 		gl.glVertex3f(7.0f, 4.0f, 2.0f); // topo -- nao muda
+		gl.glTexCoord2f(textureLefts[5], textureBottoms[5]);
 		gl.glVertex3f(7.0f, 2.0f, 5.0f); // esquerda
+		gl.glTexCoord2f(textureRights[5], textureBottoms[5]);
 		gl.glVertex3f(10.0f, 2.0f, 5.0f); // direita
 		gl.glEnd();
+		textures[5].disable(gl);
 	}
 
 	private void drawBase(GL2 gl) {
