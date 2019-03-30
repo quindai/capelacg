@@ -62,7 +62,9 @@ public class capela extends JFrame implements GLEventListener {
 	         "images/wall3.jpg", 
 	         "images/window1.jpg", 
 	         "images/wall1.jpg", 
-	         "images/jesus.jpeg" };
+	         "images/jesus.jpeg",
+	         "images/inwallback.jpg",
+	         "images/roof.jpg"};
 
 	private Texture[] textures = new Texture[ textureFileNames.length ];
     private float[] textureTops    = new float[ textureFileNames.length ];
@@ -249,7 +251,7 @@ public class capela extends JFrame implements GLEventListener {
 	      // Diffuse light location xyz (in front of the screen).
 	      float[] lightDiffusePosition = { 0.0f, 0.0f, 2.0f, 1.0f };
 	      
-	      //gl.glLightfv(GL2.GL_LIGHT2, GL_AMBIENT, lightAmbientValue, 0);
+	      gl.glLightfv(GL2.GL_LIGHT2, GL_AMBIENT, lightAmbientValue, 0);
 	      gl.glLightfv(GL2.GL_LIGHT1, GL_DIFFUSE, lightDiffuseValue, 0);
 	      gl.glLightfv(GL2.GL_LIGHT1, GL_POSITION, lightDiffusePosition, 0);
 	      gl.glEnable(GL2.GL_LIGHT1);
@@ -350,15 +352,20 @@ public class capela extends JFrame implements GLEventListener {
 				gl.glVertex3f(-7.0f, -6.0f, -7.0f);
 				gl.glTexCoord2f(textureLefts[0], textureTops[0]);
 				gl.glVertex3f(-7.0f, -6.0f, 7.0f);
-				textures[0].disable(gl);
 				
 				// face direita
 				gl.glNormal3f(1.0f, 0.0f, 0.0f);
+				gl.glTexCoord2f(textureRights[0], textureBottoms[0]);
 				gl.glVertex3f(7.0f, 9.0f, -7.0f);
+				gl.glTexCoord2f(textureRights[0], textureTops[0]);
 				gl.glVertex3f(7.0f, 9.0f, 7.0f);
+				gl.glTexCoord2f(textureLefts[0], textureTops[0]);
 				gl.glVertex3f(7.0f, -6.0f, 7.0f);
+				gl.glTexCoord2f(textureLefts[0], textureBottoms[0]);
 				gl.glVertex3f(7.0f, -6.0f, -7.0f);
 
+				textures[0].disable(gl);
+				
 				// face fundo
 				// Alice Blue RGB Color Code: #F0F8FF
 				gl.glNormal3f(0.0f, -1.0f, 0.0f);
@@ -562,28 +569,45 @@ public class capela extends JFrame implements GLEventListener {
 		gl.glRotatef(rollup, 1.0f, 0.0f, 0.0f);
 
 		gl.glColor3f((float) 215 / 255, (float) 180 / 255, (float) 145 / 255);
+		textures[5].enable(gl);
+		textures[5].bind(gl);
 		gl.glBegin(GL2.GL_TRIANGLES);
 		{
 			// LIGHTING
-			// gl.glNormal3f(1.0f, 0.0f, 0.0f);
-
+			gl.glNormal3f(0.0f, 0.5f, 1.0f);
+			gl.glTexCoord2f(textureRights[5]/2, textureTops[5]);
 			gl.glVertex3f(0.0f, 13.0f, 0.0f); // topo -- nao muda
+			gl.glTexCoord2f(textureLefts[5], textureBottoms[5]);
 			gl.glVertex3f(-7.0f, 9.0f, 7.0f); // esquerda
+			gl.glTexCoord2f(textureRights[5], textureBottoms[5]);
 			gl.glVertex3f(7.0f, 9.0f, 7.0f); // direita
 
+			gl.glNormal3f(0.0f, 0.5f, -1.0f);
+			gl.glTexCoord2f(textureRights[5]/2, textureTops[5]);
 			gl.glVertex3f(0.0f, 13.0f, 0.0f); // fundo -- nao muda
+			gl.glTexCoord2f(textureLefts[5], textureBottoms[5]);
 			gl.glVertex3f(-7.0f, 9.0f, -7.0f); // esquerda
+			gl.glTexCoord2f(textureRights[5], textureBottoms[5]);
 			gl.glVertex3f(7.0f, 9.0f, -7.0f); // direita
 
+			gl.glNormal3f(1.0f, 0.5f, 0.0f);
+			gl.glTexCoord2f(textureRights[5]/2, textureTops[5]);
 			gl.glVertex3f(0.0f, 13.0f, 0.0f); // direita -- nao muda
+			gl.glTexCoord2f(textureRights[5], textureBottoms[5]);
 			gl.glVertex3f(7.0f, 9.0f, -7.0f); // esquerda
+			gl.glTexCoord2f(textureLefts[5], textureBottoms[5]);
 			gl.glVertex3f(7.0f, 9.0f, 7.0f); // direita
 
+			gl.glNormal3f(-1.0f, 0.5f, 0.0f);
+			gl.glTexCoord2f(textureRights[5]/2, textureTops[5]);
 			gl.glVertex3f(0.0f, 13.0f, 0.0f); // esquerda -- nao muda
+			gl.glTexCoord2f(textureLefts[5], textureBottoms[5]);
 			gl.glVertex3f(-7.0f, 9.0f, 7.0f); // esquerda
+			gl.glTexCoord2f(textureRights[5], textureBottoms[5]);
 			gl.glVertex3f(-7.0f, 9.0f, -7.0f); // direita
 		}
 		gl.glEnd();
+		textures[5].disable(gl);
 	}
 
 	private void drawSmallFrontDoor(GL2 gl) {
