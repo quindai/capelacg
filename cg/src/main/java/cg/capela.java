@@ -19,6 +19,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.nio.FloatBuffer;
 
 import javax.swing.JFrame;
 
@@ -263,6 +264,7 @@ public class capela extends JFrame implements GLEventListener {
 	      
 	      gl.glLightfv(GL2.GL_LIGHT2, GL_AMBIENT, lightAmbientValue, 0);
 	      gl.glLightfv(GL2.GL_LIGHT1, GL_DIFFUSE, lightDiffuseValue, 0);
+	      gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, lightDiffuseValue, 0);
 	      gl.glLightfv(GL2.GL_LIGHT1, GL_POSITION, lightDiffusePosition, 0);
 	      gl.glEnable(GL2.GL_LIGHT1);
 	      
@@ -352,8 +354,11 @@ public class capela extends JFrame implements GLEventListener {
 				// face esquerda
 				
 				// Almond RGB Color Code: #EFDECD
-				gl.glColor3f((float) 239 / 255, (float) 222 / 255, (float) 205 / 255);
+				//gl.glColor3f((float) 239 / 255, (float) 222 / 255, (float) 205 / 255);
 				gl.glNormal3f(-1.0f, 0.0f, 0.0f);
+				FloatBuffer mat_amb_diff = FloatBuffer.wrap(new float[] { 1.0f, 1.0f, 1.0f, 0.5f });
+				gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, 
+				            mat_amb_diff);
 				gl.glTexCoord2f(textureLefts[0], textureBottoms[0]);
 				gl.glVertex3f(-7.0f, 9.0f, 7.0f);
 				gl.glTexCoord2f(textureRights[0], textureBottoms[0]);
@@ -365,6 +370,12 @@ public class capela extends JFrame implements GLEventListener {
 				
 				// face direita
 				gl.glNormal3f(1.0f, 0.0f, 0.0f);
+				//FloatBuffer mat_amb_diff = FloatBuffer.wrap(new float[] { 1.0f, 1.0f, 1.0f, 1.0f });
+				
+				/*mat_amb_diff = FloatBuffer.wrap(new float[] { 1.0f, 1.0f, 1.0f, 1.0f });
+				gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE, 
+				            mat_amb_diff);*/
+				//gl.glLightModeli(GL2.GL_LIGHT_MODEL_TWO_SIDE, GL2.GL_TRUE);
 				gl.glTexCoord2f(textureRights[0], textureBottoms[0]);
 				gl.glVertex3f(7.0f, 9.0f, -7.0f);
 				gl.glTexCoord2f(textureRights[0], textureTops[0]);
@@ -576,7 +587,27 @@ public class capela extends JFrame implements GLEventListener {
 	}
 	
 	public void drawCross(GL2 gl) {
+		FloatBuffer no_mat = FloatBuffer.wrap(new float[]{ 0.0f, 0.0f, 0.0f, 1.0f });
+		FloatBuffer mat_ambient = FloatBuffer.wrap(new float[]{ 0.7f, 0.7f, 0.7f, 1.0f });
+		FloatBuffer mat_ambient_color = FloatBuffer.wrap(new float[]{ 0.8f, 0.8f, 0.2f, 1.0f });
+		FloatBuffer mat_diffuse = FloatBuffer.wrap(new float[]{ 0.1f, 0.5f, 0.8f, 1.0f });
+		FloatBuffer mat_specular = FloatBuffer.wrap(new float[]{ 1.0f, 1.0f, 1.0f, 1.0f });
+		FloatBuffer no_shininess = FloatBuffer.wrap(new float[]{ 0.0f });
+		FloatBuffer low_shininess = FloatBuffer.wrap(new float[]{ 5.0f });
+		FloatBuffer high_shininess = FloatBuffer.wrap(new float[]{ 100.0f });
+		FloatBuffer mat_emission = FloatBuffer.wrap(new float[]{0.3f, 0.2f, 0.2f, 0.0f});
+		   
+		   
+		   
 		gl.glPushMatrix();
+		   /*gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, no_mat);
+		   gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, mat_diffuse);
+		   gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, mat_specular);
+		   gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, high_shininess);*/
+		   //gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, no_mat);
+		gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, mat_specular);
+		gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, low_shininess);
+		
 		gl.glTranslatef(7f, 0.09f, -4f);
 		gl.glRotatef(90, 0, 1.0f, 0);
 		gl.glScalef(0.60f, 0.05f, 0.5f);
@@ -597,6 +628,15 @@ public class capela extends JFrame implements GLEventListener {
 		gl.glColor3f(.7f, .7f, .7f);
 		glu.gluCylinder(q, .1, .1, 2, 10, 10);
 		gl.glColor4ub((byte)222, (byte)111, (byte)100, (byte)25);
+		FloatBuffer mat_amb_diff = FloatBuffer.wrap(new float[] { 1.0f, 1.0f, 1.0f, 0.3f });
+		//gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, 
+		//            mat_amb_diff);
+		
+		FloatBuffer mat_specular = FloatBuffer.wrap(new float[]{ 1.0f, 1.0f, 1.0f, 0.3f });
+		FloatBuffer low_shininess = FloatBuffer.wrap(new float[]{ 100.0f });
+		gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, mat_specular);
+		gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, low_shininess);
+		
 		glu.gluSphere(q, .8, 10, 10);
 		gl.glTranslated(0, 0, -1);
 		gl.glEnable(GL2.GL_BLEND);
